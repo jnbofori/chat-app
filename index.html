@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Chat App</title>
+  </head>
+  <style>
+   /*body {*/
+   /*  padding: 0;*/
+   /*  margin: 0;*/
+   /*  display: flex;*/
+   /*  justify-content: center;*/
+   /*}*/
+
+   #message-container {
+     height: 500px;
+   }
+
+   /*#message-container div {*/
+   /*  background-color: #CCC;*/
+   /*  padding: 5px;*/
+   /*}*/
+
+   /*#message-container div:nth-child(2n) {*/
+   /*  background-color: #FFF;*/
+   /*}*/
+
+   /*#send-container {*/
+   /*  position: fixed;*/
+   /*  padding-bottom: 30px;*/
+   /*  bottom: 0;*/
+   /*  background-color: white;*/
+   /*  max-width: 1200px;*/
+   /*  width: 80%;*/
+   /*  display: flex;*/
+   /*}*/
+
+   /*#message-input {*/
+   /*  flex-grow: 1;*/
+   /*}*/
+
+    #content-wrap {
+      display: none;
+    }
+
+    #chat-wrap {
+      float: right;
+      border: 1px darkgray solid;
+    }
+
+    .username-display {
+        color: red;
+        cursor: pointer;
+    }
+
+     #chat-header{
+         float: right;
+      }
+ </style>
+  <body>
+  <div id="nickWrap">
+    <p>Enter a username</p>
+    <p id="nickError"></p>
+    <form id="setNick">
+      <input type="text" id="nickname">
+      <button type="submit">Submit</button>
+    </form>
+  </div>
+
+  <div id="content-wrap">
+      <div id="chat-header">Global Chat</div>
+      <div id="chat-wrap">
+        <div id="message-container"></div>
+        <form id="send-container">
+            <input type="text" name="msg-input" id="message-input">
+            <button type="submit" id="send-button">Send</button>
+        </form>
+      </div>
+    <section id="users"></section>
+  </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script type="text/javascript">
+        var socket = io.connect();
+        var messageForm = document.getElementById('send-container');
+        var messageBox = document.getElementById('message-input');
+        var chat = document.getElementById('message-container');
+        var nickForm = document.getElementById('setNick');
+        var nickError = document.getElementById('nickError');
+        var nickBox = document.getElementById('nickname');
+        var usersSection = document.getElementById('users');
+
+        nickForm.addEventListener('submit',  e => {
+          e.preventDefault();
+          socket.emit('new-user', nickBox.value, function (data) {
+            if(data){
+              document.getElementById('nickWrap').style.display = "none";
+              document.getElementById('content-wrap').style.display = "block";
+            }else{
+              nickError.innerHTML = "That username is already taken";
+            }
+          });
+          nickBox.value = "";
+        });
+
+        socket.on('usernames', data => {
+            while(usersSection.hasChildNodes()){
+                usersSection.removeChild(usersSection.firstChild);
+            }
+            for (let i = 0; i < data.length; i++) {
+                let user = document.createElement("div");
+                user.className = "username-display";
+                user.innerHTML = data[i];
+                usersSection.appendChild(user);
+                setClickEvent();
+            }
+        });
+
+        messageForm.addEventListener('submit', e =>{
+          e.preventDefault();
+          let receiver = document.getElementById('chat-header').innerHTML;
+          const message = messageBox.value;
+          socket.emit('send-message', {msg: message, target: receiver});
+          messageBox.value = '';
+          let msg = '<b>You:</b> ' + message;
+          appendMessage(msg);
+        });
+
+        socket.on('new-message', data => {
+            let msg = '<b>' + data.nickname + ':</b> ' + data.msg;
+            appendMessage(msg);
+        });
+
+        socket.on('priv-message', data => {
+            document.getElementById('chat-header').innerHTML = data.nickname;
+            let msg = '<b>' + data.nickname + ':</b> ' + data.msg;
+            appendMessage(msg);
+        });
+
+        function setClickEvent() {
+            let userClass = document.getElementsByClassName('username-display');
+            for(let j=0; j<userClass.length; j++) {
+                userClass[j].onclick = function (e) {
+                    document.getElementById('chat-header').innerHTML = e.target.innerHTML;
+                    while(chat.hasChildNodes()){
+                        chat.removeChild(chat.firstChild);
+                    }
+                }
+            }
+        }
+
+        function appendMessage(message) {
+            const messageElement = document.createElement("div");
+            messageElement.innerHTML = message;
+            chat.append(messageElement);
+        }
+    </script>
+  </body>
+</html>
+
+
+
+
+
+
