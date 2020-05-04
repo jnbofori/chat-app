@@ -1,0 +1,105 @@
+    * {
+        box-sizing: border-box;
+    }
+    body{
+        font-family: Arial,"Times New Roman",sans-serif;
+        margin: 0;
+    }
+    header {
+        background: #4E0D3A;
+        color: white;
+        text-align: center;
+        padding: 1px;
+        position: sticky;
+    }
+    h2 {
+        margin-top: -4px;
+    }
+    #nickWrap{
+        margin: auto;
+        margin-top: 5%;
+        width: 50%;
+        text-align: center;
+        padding: 20px 10px;
+        line-height: 50px;
+    }
+    #nickname {
+        padding: 10px;
+        width: 40%;
+        height: 40px;
+    }
+    #nickname-button {
+        width: 10%;
+        height: 40px;
+        background-color: black;
+        color: white;
+        border: none;
+        padding: 10px;
+    }
+    #message-input {
+        border: 0;
+        padding: 10px;
+        width: 90%;
+        margin-right: 0;
+    }
+    #send-button {
+        width: 9%;
+        background: #5D1049;
+        color: white;
+        border: none; padding: 10px;
+        margin-right: 0;
+    }
+    #message-container {
+        flex: 90%;
+        height: 1200px;
+    }
+    #message-container div {
+        padding: 10px 20px;
+    }
+    #messages div:nth-child(odd) {
+        background: red;
+    }
+    #send-container{
+        position: fixed;
+        bottom : 0;
+        width: 70%;
+        height: 40px;
+        padding: 3px;
+        background-color: black;
+        max-width: 1200px;
+        flex: 10%;
+    }
+    #content-wrap {
+        display: none;
+        flex-wrap: wrap;
+        background-color: white;
+        max-height: 500px;
+    }
+    #chat-wrap {
+        float: right;
+        border: 0;
+        flex: 70%;
+    }
+    #sidebar {
+        flex: 30%;
+        background-color: #f1f1f1;
+        padding: 20px;
+    }
+    .username-display {
+        color: white;
+        cursor: pointer;
+        padding: 10px;
+        background-color: #8a0f71;
+    }
+    #chat-header{
+        background-color: darkgray;
+        color: white;
+        height: 50px;
+        padding: 15px 20px;
+        font-size: 20px;
+    }
+    #chat-box {
+        display: flex;
+        flex-direction: column;
+        flex-wrap: wrap;
+    }

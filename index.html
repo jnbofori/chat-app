@@ -3,80 +3,146 @@
   <head>
     <meta charset="utf-8">
     <title>Chat App</title>
-  </head>
-  <style>
-   /*body {*/
-   /*  padding: 0;*/
-   /*  margin: 0;*/
-   /*  display: flex;*/
-   /*  justify-content: center;*/
-   /*}*/
-
-   #message-container {
-     height: 500px;
-   }
-
-   /*#message-container div {*/
-   /*  background-color: #CCC;*/
-   /*  padding: 5px;*/
-   /*}*/
-
-   /*#message-container div:nth-child(2n) {*/
-   /*  background-color: #FFF;*/
-   /*}*/
-
-   /*#send-container {*/
-   /*  position: fixed;*/
-   /*  padding-bottom: 30px;*/
-   /*  bottom: 0;*/
-   /*  background-color: white;*/
-   /*  max-width: 1200px;*/
-   /*  width: 80%;*/
-   /*  display: flex;*/
-   /*}*/
-
-   /*#message-input {*/
-   /*  flex-grow: 1;*/
-   /*}*/
-
+    <style>
+    * {
+        box-sizing: border-box;
+    }
+    body{
+        font-family: Arial,"Times New Roman",sans-serif;
+        margin: 0;
+    }
+    header {
+        background: #4E0D3A;
+        color: white;
+        text-align: center;
+        padding: 1px;
+        position: sticky;
+    }
+    h2 {
+        margin-top: -4px;
+    }
+    #nickWrap{
+        margin: auto;
+        margin-top: 5%;
+        width: 50%;
+        text-align: center;
+        padding: 20px 10px;
+        line-height: 50px;
+    }
+    #nickname {
+        padding: 10px;
+        width: 40%;
+        height: 40px;
+    }
+    #nickname-button {
+        width: 10%;
+        height: 40px;
+        background-color: black;
+        color: white;
+        border: none;
+        padding: 10px;
+    }
+    #message-input {
+        border: 0;
+        padding: 10px;
+        width: 90%;
+        margin-right: 0;
+    }
+    #send-button {
+        width: 9%;
+        background: #5D1049;
+        color: white;
+        border: none; padding: 10px;
+        margin-right: 0;
+    }
+    #message-container {
+        flex: 90%;
+        height: 1200px;
+    }
+    #message-container div {
+        padding: 10px 20px;
+    }
+    #messages div:nth-child(odd) {
+        background: red;
+    }
+    #send-container{
+        position: fixed;
+        bottom : 0;
+        width: 70%;
+        height: 40px;
+        padding: 3px;
+        background-color: black;
+        max-width: 1200px;
+        flex: 10%;
+    }
     #content-wrap {
-      display: none;
+        display: none;
+        flex-wrap: wrap;
+        background-color: white;
+        max-height: 500px;
     }
-
     #chat-wrap {
-      float: right;
-      border: 1px darkgray solid;
+        float: right;
+        border: 0;
+        flex: 70%;
     }
-
+    #sidebar {
+        flex: 30%;
+        background-color: #f1f1f1;
+        padding: 20px;
+    }
     .username-display {
-        color: red;
+        color: white;
         cursor: pointer;
+        padding: 10px;
+        background-color: #8a0f71;
     }
+    #chat-header{
+        background-color: #1c1c1c;
+        color: white;
+        height: 50px;
+        padding: 15px 20px;
+        font-size: 20px;
+    }
+    #chat-box {
+        display: flex;
+        flex-direction: column;
+        flex-wrap: wrap;
+    }
+    </style>
+  </head>
 
-     #chat-header{
-         float: right;
-      }
- </style>
   <body>
+  <header>
+      <h1>Chat App</h1>
+      <p>Connect wih friends instantly!</p>
+  </header>
+
   <div id="nickWrap">
-    <p>Enter a username</p>
+    <h2>Enter a username</h2>
     <p id="nickError"></p>
     <form id="setNick">
       <input type="text" id="nickname">
-      <button type="submit">Submit</button>
+      <button type="submit" id="nickname-button">Submit</button>
     </form>
   </div>
 
   <div id="content-wrap">
-      <div id="chat-header">Global Chat</div>
-      <div id="chat-wrap">
-        <div id="message-container"></div>
-        <form id="send-container">
-            <input type="text" name="msg-input" id="message-input">
-            <button type="submit" id="send-button">Send</button>
-        </form>
+      <div id="sidebar">
+          <h2>Online Users</h2>
+          <section id="users"></section>
       </div>
-    <section id="users"></section>
+
+      <div id="chat-wrap">
+          <div id="chat-header">Global Chat</div>
+          <div id="chat-box">
+            <div id="message-container"></div>
+            <form id="send-container">
+                <input type="text" name="msg-input" id="message-input">
+                <button type="submit" id="send-button">Send</button>
+            </form>
+          </div>
+      </div>
   </div>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
@@ -96,7 +162,7 @@
           socket.emit('new-user', nickBox.value, function (data) {
             if(data){
               document.getElementById('nickWrap').style.display = "none";
-              document.getElementById('content-wrap').style.display = "block";
+              document.getElementById('content-wrap').style.display = "flex";
             }else{
               nickError.innerHTML = "That username is already taken";
             }
@@ -110,9 +176,11 @@
             }
             for (let i = 0; i < data.length; i++) {
                 let user = document.createElement("div");
+                let hr_line = document.createElement('hr');
                 user.className = "username-display";
                 user.innerHTML = data[i];
                 usersSection.appendChild(user);
+                usersSection.appendChild(hr_line);
                 setClickEvent();
             }
         });
@@ -133,9 +201,15 @@
         });
 
         socket.on('priv-message', data => {
-            document.getElementById('chat-header').innerHTML = data.nickname;
+            let headerName = document.getElementById('chat-header');
+            if(data.nickname !== headerName.innerHTML){
+                while(chat.hasChildNodes()){
+                    chat.removeChild(chat.firstChild);
+                }
+            }
+            headerName.innerHTML = data.nickname;
             let msg = '<b>' + data.nickname + ':</b> ' + data.msg;
-            appendMessage(msg);
+            appendMessage(msg);s
         });
 
         function setClickEvent() {
@@ -158,9 +232,3 @@
     </script>
   </body>
 </html>
-
-
-
-
-
-
